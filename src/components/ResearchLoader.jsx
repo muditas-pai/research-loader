@@ -12,9 +12,9 @@ function ResearchLoader() {
   const [visibleUnits, setVisibleUnits] = useState(0); // words for text, items for arrays
   const [completedSteps, setCompletedSteps] = useState([]);
   const [translateY, setTranslateY] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
   const currentStepRef = useRef(null);
   const timelineRef = useRef(null);
-  const lastContentHeight = useRef(0);
   const translateYRef = useRef(0);
 
   const getCurrentStep = useCallback(() => {
@@ -36,40 +36,28 @@ function ResearchLoader() {
     translateYRef.current = translateY;
   }, [translateY]);
 
-  // Center the current step title in viewport
+  // Center the current step title in viewport (only on new step)
   useLayoutEffect(() => {
     const centerStep = () => {
       if (!currentStepRef.current) return;
 
       const stepRect = currentStepRef.current.getBoundingClientRect();
       const viewportCenter = window.innerHeight / 2;
-      const stepTitleCenter = stepRect.top + 12; // Approximate title center
+      const stepTitleCenter = stepRect.top + 12;
       const offset = viewportCenter - stepTitleCenter;
 
       const newTranslateY = translateYRef.current + offset;
       setTranslateY(newTranslateY);
       translateYRef.current = newTranslateY;
-      lastContentHeight.current = currentStepRef.current.offsetHeight;
+
+      // Enable transitions after first positioning
+      if (!isInitialized) {
+        requestAnimationFrame(() => setIsInitialized(true));
+      }
     };
 
     requestAnimationFrame(centerStep);
-  }, [currentStep]);
-
-  // Adjust position when content height changes during streaming
-  useEffect(() => {
-    if (stepPhase !== 'streaming' || !currentStepRef.current) return;
-
-    const currentHeight = currentStepRef.current.offsetHeight;
-    const heightDiff = currentHeight - lastContentHeight.current;
-
-    // Only adjust if height actually increased (new line added)
-    if (heightDiff > 10) {
-      const newTranslateY = translateYRef.current - heightDiff / 2;
-      setTranslateY(newTranslateY);
-      translateYRef.current = newTranslateY;
-      lastContentHeight.current = currentHeight;
-    }
-  }, [visibleUnits, stepPhase]);
+  }, [currentStep, isInitialized]);
 
   // Handle step progression
   useEffect(() => {
@@ -163,7 +151,7 @@ function ResearchLoader() {
   return (
     <div className="research-loader">
       <div
-        className="timeline"
+        className={`timeline ${isInitialized ? 'initialized' : ''}`}
         ref={timelineRef}
         style={{ transform: `translateY(${translateY}px)` }}
       >
