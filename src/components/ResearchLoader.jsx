@@ -57,7 +57,8 @@ function ResearchLoader() {
     };
 
     requestAnimationFrame(centerStep);
-  }, [currentStep, isInitialized]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
 
   // Handle step progression
   useEffect(() => {

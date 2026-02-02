@@ -51,7 +51,7 @@
   background-color: #f97316;
   border-radius: 50%;
   animation: pulse 1.5s ease-in-out infinite;
-  margin: 6px;
+  margin: 8px 6px 6px 6px;
   position: relative;
 }
 
@@ -96,8 +96,9 @@
   left: 50%;
   transform: translateX(-50%);
   width: 2px;
-  height: calc(100% - 0px);
+  height: calc(100% + 14px);
   background-color: #fed7aa;
+  z-index: 0;
 }
 
 .step-content {
